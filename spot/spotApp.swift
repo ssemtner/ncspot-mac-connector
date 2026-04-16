@@ -199,33 +199,10 @@ class SocketClient: ObservableObject {
     }
     
     private func getFile() -> String {
-        let task = Process()
-        let pipe = Pipe()
-        
-        task.standardOutput = pipe
-        
-        task.executableURL = URL(fileURLWithPath: "/run/current-system/sw/bin/ncspot")
-        task.arguments = ["info"]
-        
-        do {
-            try task.run()
-        }
-        catch {
-            print("failed to run ncspot")
-            return ""
-        }
-        
-        let data = pipe.fileHandleForReading.readDataToEndOfFile()
-        let output = String(data: data, encoding: .utf8)
-        
-        let parts = output?.components(separatedBy: .whitespacesAndNewlines)
-        guard parts != nil else {
-            print("parts is nil")
-            return ""
-        }
-        let path = parts![parts!.endIndex - 2]
-        
-        return URL(fileURLWithPath: path).appendingPathComponent("ncspot.sock").path()
+        let uid = getuid()
+        let path = "/tmp/ncspot-\(uid)/ncspot.sock"
+        print("socket path: \(path)")
+        return path
     }
     
     private func handleRead() {
